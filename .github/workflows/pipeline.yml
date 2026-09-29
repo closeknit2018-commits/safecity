@@ -1,0 +1,27 @@
+name: SafeCity daily pipeline
+
+on:
+ schedule:
+   - cron: "0 3 * * *"
+ workflow_dispatch:
+
+jobs:
+ run-pipeline:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: docker build -t safecity-pipeline .
+
+    - name: Run pipeline
+      run: 
+       docker run --rm \
+        -e PG_HOST=${{ secrets.PG_HOST }} \
+        -e PG_PORT=${{ secrets.PG_PORT }} \
+        -e PG_DB=${{ secrets.PG_DB }} \
+        -e PG_USER=${{ secrets.PG_USER }} \
+        -e PG_PASSWORD=${{ secrets.PG_PASSWORD }} \
+        -e DATA_DIR=/app/data \
+        safecity-pipeline
