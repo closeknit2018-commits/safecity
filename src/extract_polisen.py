@@ -12,6 +12,11 @@ def extract_polisen_events(params: dict | None = None) -> Path:
     """Retrieve the latest police events by region and save them as raw JSON"""
 
     response = requests.get(API_URL, params=params, timeout=10)
+    print("URL:", response.url)
+    print("STATUS:", response.status_code)
+    print("CONTENT TYPE:", response.headers.get("content-type"))
+    print("RESPONSE:", response.text[:500])
+    
     response.raise_for_status() 
     events = response.json()
     if not isinstance(events, list):
