@@ -10,6 +10,15 @@ def build_staging() -> None:
     db_path = data_dir/ "data" / "safecity.duckdb"
 
     DATETIME_OFFSET_PATTERN = r'[+-]\d{2}:\d{2}$'
+    COLUMNS_PATTERN = {
+    'id': 'BIGINT',
+    'datetime': 'VARCHAR',
+    'name': 'VARCHAR',
+    'summary': 'VARCHAR',
+    'url': 'VARCHAR',
+    'type': 'VARCHAR',
+    'location': 'STRUCT(name VARCHAR, gps VARCHAR)',
+}
 
     con = duckdb.connect(str(db_path))
     con.execute(f"""
@@ -29,7 +38,7 @@ def build_staging() -> None:
             filename AS source_file,
             strptime(regexp_replace(datetime, '{DATETIME_OFFSET_PATTERN}', ''),
              '%Y-%m-%d %H:%M:%S') AS published_at_local
-        FROM read_json('{raw_glob}', format='array', filename=true)
+        FROM read_json('{raw_glob}', format='array', filename=true, columns={COLUMNS_PATTERN})
 """)
     print(con.execute("""
         SELECT count(*) as rows,
